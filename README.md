@@ -59,6 +59,12 @@ node --check skills/tgstat-channel-analysis/scripts/devtools-client.mjs
 
 Tests are fast unit checks (expected under 2 seconds, maximum 10 seconds). They detect duplicate subscriber rows, missing-date handling, month boundaries and inconsistent source counters. Release verification has a 180-second total budget; no nightly or unbounded browser suite is needed for this package.
 
+`node --test tests/devtools-client.test.mjs` verifies the MCP adapter in a sandboxed REPL without a global `process`, using an offline fixture rather than accessing a real browser.
+
+## Further analytics
+
+The [analytics expansion map](skills/tgstat-channel-analysis/references/analytics-map.md) catalogs the official API's engagement, post, citation, stories, search and chat methods. It includes plan/pagination limits and distinguishes planned adapters from implemented collectors.
+
 Initial collector behavior was checked against live TGStat panels through the official Chrome DevTools MCP; the published offline tests use synthetic channel names and numbers only.
 
 ## License

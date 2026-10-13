@@ -2,7 +2,7 @@ import {spawn} from 'node:child_process';
 
 export async function startChromeMcp({node, mcpBin, timeoutMs=60000}) {
   if (!node || !mcpBin) throw new Error('Provide installed Node and official chrome-devtools-mcp binary paths');
-  const child=spawn(node,['--max-old-space-size=256',mcpBin,'--autoConnect','--no-usage-statistics','--redactNetworkHeaders'],{stdio:['pipe','pipe','pipe'],env:{...process.env,UV_THREADPOOL_SIZE:'2'}});
+  const child=spawn(node,['--max-old-space-size=256',mcpBin,'--autoConnect','--no-usage-statistics','--redactNetworkHeaders'],{stdio:['pipe','pipe','pipe']});
   let seq=0,buffer='',queue=Promise.resolve();
   const pending=new Map();
   const failAll=e=>{for(const p of pending.values()){clearTimeout(p.timer);p.reject(e);}pending.clear();};

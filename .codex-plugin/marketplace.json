@@ -1,5 +1,5 @@
 {
   "name": "tgstat-reader",
   "owner": {"name": "megamen32"},
-  "plugins": [{"name": "tgstat-reader", "source": "./", "description": "Read Telegram channel analytics from TGStat.", "version": "1.0.0"}]
+  "plugins": [{"name": "tgstat-reader", "source": "./", "description": "Read Telegram channel analytics from TGStat.", "version": "1.0.1"}]
 }
