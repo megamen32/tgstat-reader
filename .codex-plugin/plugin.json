@@ -1,0 +1,16 @@
+{
+  "name": "tgstat-reader",
+  "version": "1.0.0",
+  "description": "TGStat audience loss and post views for arbitrary Telegram channels.",
+  "author": {"name": "megamen32"},
+  "homepage": "https://github.com/megamen32/tgstat-reader",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "TGStat Reader",
+    "shortDescription": "Telegram channel audience loss and views",
+    "developerName": "megamen32",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "defaultPrompt": ["Analyze the requested Telegram channels using TGStat."]
+  }
+}

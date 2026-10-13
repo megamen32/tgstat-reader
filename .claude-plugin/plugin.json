@@ -1,0 +1,10 @@
+{
+  "name": "tgstat-reader",
+  "version": "1.0.0",
+  "description": "TGStat audience loss and post views for arbitrary Telegram channels.",
+  "author": {"name": "megamen32"},
+  "homepage": "https://github.com/megamen32/tgstat-reader",
+  "repository": "https://github.com/megamen32/tgstat-reader",
+  "license": "MIT",
+  "skills": "./skills/"
+}
