@@ -27,7 +27,8 @@ Static website sections read without mutation: summary, citation breakdowns, pub
 ## Access and coverage behavior
 
 - A live full-mode run returned 15 series groups, hourly-post rows, citation rows and subscriber history without collector errors.
-- The current test account received `restricted` for top posts, advertisement efficiency and attraction, with the site's Premium notice. Those request adapters are included, but successful Premium payload parsing has not been proven under this account; preserve fallback text when a new payload shape appears.
+- Top posts succeed in the website's default `columns` view; the `list` view returned a Premium restriction. The collector uses `columns` and extracts each post's label/date, views and forwards as cells.
+- The current test account received `restricted` for advertisement efficiency and attraction, with the site's Premium notice. Those request adapters are included, but successful Premium payload parsing has not been proven under this account; preserve fallback text when a new payload shape appears.
 - Audience and invitation links showed owner-confirmation notices. Capture that boundary; never claim the private data was collected.
 - Table pagination uses the site's `nextPage`/`nextOffset`; offset can be a post ID rather than an item count. Never increment it yourself.
 - Bare `<tr>` fragments must be wrapped in a table before DOM parsing; otherwise cells disappear. Citation rows are list items with `js-post-action`.

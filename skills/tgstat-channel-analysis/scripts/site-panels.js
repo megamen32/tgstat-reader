@@ -24,7 +24,7 @@ async function tgstatCollectPanels({channels, startDate, endDate, tableDate='', 
     ['advertising_48h','posts-views-adv-chart',{period:'48h'}],['advertising_72h','posts-views-adv-chart',{period:'72h'}]
   ];
   const tableDefs=[
-    ['top_posts','posts-popular-table',{date:tableDate,view:'list',sort:'views'}],
+    ['top_posts','posts-popular-table',{date:tableDate,view:'columns',sort:'views'}],
     ['hourly_post_views','posts-views-analyze/list',{date:tableDate,page:1,offset:0}],
     ['advertising_efficiency','ads-efficiency/list',{channelName:'',page:1,offset:0}],
     ['subscriber_attraction','members-attraction-list',{page:1,offset:0}],
@@ -35,9 +35,9 @@ async function tgstatCollectPanels({channels, startDate, endDate, tableDate='', 
     const fragment=/<tr[\s>]/i.test(html)?`<table><tbody>${html}</tbody></table>`:html;
     const d=dom(fragment);d.querySelectorAll('script,style,form,input').forEach(e=>e.remove());
     const els=[...d.querySelectorAll('tr')];
-    const entries=els.length?els:[...d.querySelectorAll('li.js-post-action')];
+    const entries=els.length?els:[...d.querySelectorAll('li.js-post-action, a.list-group-item.js-post-action')];
     const rows=entries.map(e=>({text:e.textContent.replace(/\s+/g,' ').trim(),
-      cells:[...e.querySelectorAll('td')].map(c=>c.textContent.replace(/\s+/g,' ').trim()),
+      cells:[...e.querySelectorAll(e.matches('a.list-group-item')?':scope > .row > .col':'td')].map(c=>c.textContent.replace(/\s+/g,' ').trim()),
       links:[...e.querySelectorAll('a[href]')].map(a=>({label:a.textContent.trim(),url:new URL(a.getAttribute('href'),location.origin).href})).filter(a=>/^https:\/\/(?:tgstat\.ru|t\.me)\//.test(a.url))
     }));
     return {rows,text:rows.length?'':cleanText(html).slice(0,12000)};
