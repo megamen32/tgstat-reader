@@ -53,6 +53,24 @@ class DataSemantics(unittest.TestCase):
             self.assertEqual(adapter['version'], manifest['version'])
             self.assertTrue((ROOT/adapter['skills']).is_dir())
 
+    def test_site_rates_are_not_summed_and_restrictions_survive(self):
+        data = {'channels':[{'channel':'sample_alpha','series':{
+            'er':[{'name':'ER','data':[point('2026-01-01','2'),point('2026-01-02','4')]}],
+            'mentions_and_reposts':[{'name':'Mentions','data':[point('2026-01-01','5'),point('2026-01-02','7')]}]
+        },'seriesKinds':{'er':'snapshot','mentions_and_reposts':'daily_count'},
+        'states':{'top_posts':{'status':'restricted','reason':'Premium required'}},
+        'tables':{'citations':{'complete':False,'hasMore':True,'pages':[]}}}]}
+        out = analyzer.site_report(data,dt.date(2026,1,1),dt.date(2026,1,3))['channels'][0]
+        self.assertEqual(out['metrics']['er']['series'][0]['periods'][0]['value'],3)
+        self.assertEqual(out['metrics']['mentions_and_reposts']['series'][0]['periods'][0]['value'],12)
+        self.assertEqual(out['access']['top_posts']['status'],'restricted')
+        self.assertFalse(out['tables']['citations']['complete'])
+
+    def test_unavailable_view_series_produces_partial_report(self):
+        out=analyzer.view_report({'channels':[{'channel':'sample_beta','series':{}}]},dt.date(2026,1,1),dt.date(2026,2,1))['channels'][0]
+        self.assertFalse(out['complete'])
+        self.assertNotIn('mean_monthly_recorded_views',out)
+
 
 if __name__ == '__main__':
     unittest.main()

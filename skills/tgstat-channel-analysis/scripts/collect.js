@@ -1,4 +1,4 @@
-async function tgstatCollect({channels, mode='views', startDate, maxPages=40, deadlineMs=120000}) {
+async function tgstatCollect({channels, mode='views', startDate, endDate, tableDate='', maxPages=40, maxTablePages=2, deadlineMs=120000}) {
   if(location.hostname!=='tgstat.ru')throw Error('Run inside the TGStat page');
   if(!Array.isArray(channels)||!channels.length||channels.some(c=>!/^\w+$/.test(c)))throw Error('Supply channel usernames without @');
   const started=Date.now(),result={startedAt:new Date().toISOString(),mode,channels:[],errors:[]};
@@ -35,7 +35,17 @@ async function tgstatCollect({channels, mode='views', startDate, maxPages=40, de
           page=j.nextPage;offset=j.nextOffset;
         }
         if(!finished)throw Error('Page budget exhausted before coverage boundary');
-      }else throw Error('mode must be views or subscribers');
+      }else if(mode==='full'){
+        if(typeof tgstatCollectPanels!=='function')throw Error('Load scripts/site-panels.js alongside collect.js for full analytics');
+        for(const childMode of ['views','subscribers']){
+          check();const child=await tgstatCollect({channels:[channel],mode:childMode,startDate,maxPages,deadlineMs:deadlineMs-(Date.now()-started)});
+          Object.assign(out.series,child.channels[0]?.series||{});out.pages.push(...(child.channels[0]?.pages||[]));
+          result.errors.push(...child.errors.map(e=>({...e,mode:childMode})));
+        }
+        check();const extra=await tgstatCollectPanels({channels:[channel],startDate,endDate,tableDate,maxTablePages,deadlineMs:deadlineMs-(Date.now()-started)});
+        const panel=extra.channels[0];if(panel){Object.assign(out.series,panel.series);out.seriesKinds=panel.seriesKinds;out.tables=panel.tables;out.panels=panel.panels;out.states=panel.states;}
+        result.errors.push(...extra.errors);
+      }else throw Error('mode must be views, subscribers or full');
     }catch(e){result.errors.push({channel,error:String(e)});if(Date.now()-started>=deadlineMs)break;}
   }
   result.finishedAt=new Date().toISOString();return result;

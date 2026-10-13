@@ -22,10 +22,16 @@ def view_report(data, start, end):
     output = []
     for channel in data['channels']:
         series = channel['series']
+        if not series.get('posts-views-chart') or not series.get('posts-views-avg-chart'):
+            output.append({'channel':channel['channel'],'error':'Required view series unavailable','complete':False})
+            continue
         sums = {dt.datetime.fromtimestamp(p['x']/1000, dt.timezone.utc).date(): p['y']
                 for p in series['posts-views-chart'][0]['data']}
         reach = series['posts-views-avg-chart'][0]['data']
         valid_reach = [p for p in reach if p['y'] is not None]
+        if not valid_reach:
+            output.append({'channel':channel['channel'],'error':'No valid average-reach points','complete':False})
+            continue
         periods = []
         for a, b in intervals(start, end):
             dates = [a + dt.timedelta(days=n) for n in range((b-a).days)]
@@ -77,6 +83,33 @@ def subscriber_report(data, start, end):
     return {'kind': 'subscribers', 'errors': data.get('errors', []), 'channels': output}
 
 
+def site_report(data, start, end):
+    output = []
+    for channel in data['channels']:
+        metrics = {}
+        for key, series in channel.get('series', {}).items():
+            role = channel.get('seriesKinds', {}).get(key, 'daily_count' if key == 'posts-views-chart' else 'snapshot')
+            entries = []
+            for item in series:
+                points = [(dt.datetime.fromtimestamp(p['x']/1000, dt.timezone.utc).date(),
+                           float(p['y']) if p.get('y') is not None else None) for p in item.get('data', [])]
+                valid = [(day, value) for day, value in points if start <= day < end and value is not None]
+                last = max(valid, key=lambda p: p[0]) if valid else None
+                periods = []
+                for a, b in intervals(start, end):
+                    selected = {day: value for day, value in points if a <= day < b}
+                    vals = [value for value in selected.values() if value is not None]
+                    stat = sum(vals) if role == 'daily_count' else (statistics.mean(vals) if vals else None)
+                    periods.append({'start': a.isoformat(), 'end_exclusive': b.isoformat(),
+                                    'recorded_days': len(vals), 'expected_days': (b-a).days,
+                                    'statistic': 'sum' if role == 'daily_count' else 'mean_daily_snapshot', 'value': stat})
+                entries.append({'name': item.get('name'), 'latest': {'date':last[0].isoformat(),'value':last[1]} if last else None, 'periods':periods})
+            metrics[key] = {'kind':role,'series':entries}
+        output.append({'channel':channel['channel'],'metrics':metrics,'access':channel.get('states', {}),
+                       'tables':channel.get('tables', {}),'panels':channel.get('panels', {})})
+    return {'kind':'site','errors':data.get('errors', []),'channels':output}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input')
@@ -87,8 +120,14 @@ def main():
         parser.error('start must be before end')
     with open(args.input, encoding='utf-8') as file:
         data = json.load(file)
-    is_views = data.get('mode') == 'views' or (data.get('channels') and 'posts-views-chart' in data['channels'][0].get('series', {}))
-    report = view_report(data, args.start, args.end) if is_views else subscriber_report(data, args.start, args.end)
+    if data.get('mode') == 'full':
+        report = {'kind':'full', 'views':view_report(data,args.start,args.end),
+                  'subscribers':subscriber_report(data,args.start,args.end),'site':site_report(data,args.start,args.end)}
+    elif data.get('mode') == 'site':
+        report = site_report(data,args.start,args.end)
+    else:
+        is_views = data.get('mode') == 'views' or (data.get('channels') and 'posts-views-chart' in data['channels'][0].get('series', {}))
+        report = view_report(data, args.start, args.end) if is_views else subscriber_report(data, args.start, args.end)
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

@@ -11,6 +11,7 @@ An [Agent Plugins 1.0](https://agent-plugins.org/specification) package for read
 - Current average post reach and optional 24-hour advertising reach.
 - Total recorded views per month, summed from the daily series.
 - Missing dates and inconsistencies between changes and subscriber counts.
+- Full website mode: engagement rates and interactions, citation history and lists, publication counts, 12/24/48/72-hour ad reach, hourly post-view tables and accessible website sections.
 
 Observed hourly loss is not a count of unique unsubscribers: arrivals within the same hour mask departures, and repeat subscriptions can be counted again. Monthly views include views received by older posts during that month and are not unique viewers. The skill preserves these distinctions in its reports.
 
@@ -39,6 +40,8 @@ The collector takes explicit runtime parameters:
 ```js
 await tgstatCollect({channels: suppliedUsernames, mode: 'views'});
 await tgstatCollect({channels: suppliedUsernames, mode: 'subscribers', startDate: requestedStartDate});
+// Load site-panels.js alongside collect.js for the complete website-panel workflow:
+await tgstatCollect({channels: suppliedUsernames, mode: 'full', startDate: requestedStartDate, endDate: requestedEndDate, maxTablePages: 2});
 ```
 
 For offline analysis:
@@ -54,6 +57,7 @@ The end date is exclusive. View collection currently requests one year of daily 
 ```sh
 python3 -m unittest discover -s tests -v
 node --check skills/tgstat-channel-analysis/scripts/collect.js
+node --check skills/tgstat-channel-analysis/scripts/site-panels.js
 node --check skills/tgstat-channel-analysis/scripts/devtools-client.mjs
 ```
 
@@ -63,7 +67,9 @@ Tests are fast unit checks (expected under 2 seconds, maximum 10 seconds). They 
 
 ## Further analytics
 
-The [analytics expansion map](skills/tgstat-channel-analysis/references/analytics-map.md) catalogs the official API's engagement, post, citation, stories, search and chat methods. It includes plan/pagination limits and distinguishes planned adapters from implemented collectors.
+Full mode automates the website panels the user can view manually through Chrome DevTools. It does not require a commercial TGStat API token. See [verified website panels](skills/tgstat-channel-analysis/references/site-panels.md) for implemented routes, access boundaries and pagination semantics. Restricted sections remain restricted; incomplete table samples are explicitly marked.
+
+The [official API expansion map](skills/tgstat-channel-analysis/references/analytics-map.md) is supplementary documentation only. It is not used to substantiate website adapter behavior or to switch a user's browser-based task to a commercial API.
 
 Initial collector behavior was checked against live TGStat panels through the official Chrome DevTools MCP; the published offline tests use synthetic channel names and numbers only.
 

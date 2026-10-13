@@ -15,4 +15,5 @@ jobs:
       - run: python3 -m unittest discover -s tests -v
       - run: node --test tests/devtools-client.test.mjs
       - run: node --check skills/tgstat-channel-analysis/scripts/collect.js
+      - run: node --check skills/tgstat-channel-analysis/scripts/site-panels.js
       - run: node --check skills/tgstat-channel-analysis/scripts/devtools-client.mjs
