@@ -25,7 +25,7 @@ async function tgstatCollectPanels({channels, startDate, endDate, tableDate='', 
   ];
   const tableDefs=[
     ['top_posts','posts-popular-table',{date:tableDate,view:'columns',sort:'views'}],
-    ['hourly_post_views','posts-views-analyze/list',{date:tableDate,page:1,offset:0}],
+    ['hourly_post_views','posts-views-analyze/list',{date:tableDate,page:0,offset:0}],
     ['advertising_efficiency','ads-efficiency/list',{channelName:'',page:1,offset:0}],
     ['subscriber_attraction','members-attraction-list',{page:1,offset:0}],
     ['citations',null,{'source[]':['channel'],'type[]':['channel','post'],q:'',p_count:50,page:0,offset:0}]

@@ -31,6 +31,7 @@ Static website sections read without mutation: summary, citation breakdowns, pub
 - The current test account received `restricted` for advertisement efficiency and attraction, with the site's Premium notice. Those request adapters are included, but successful Premium payload parsing has not been proven under this account; preserve fallback text when a new payload shape appears.
 - Audience and invitation links showed owner-confirmation notices. Capture that boundary; never claim the private data was collected.
 - Table pagination uses the site's `nextPage`/`nextOffset`; offset can be a post ID rather than an item count. Never increment it yourself.
+- Hourly post views start at `page=0, offset=0`, matching the website's loadMore reset. Reverified after login: this account can read five posts, but loading the next page returns `restricted` with a Premium notice. Signing in alone does not remove this limit.
 - Bare `<tr>` fragments must be wrapped in a table before DOM parsing; otherwise cells disappear. Citation rows are list items with `js-post-action`.
 - `maxTablePages` is an explicit sample budget. Returned `complete=false`/`hasMore=true` is unfinished coverage; retain checkpoint and increase the budget only within the shared runtime allowance.
 - The API may return numeric series values as strings. Normalize valid numbers while retaining nulls and source dates.
